@@ -1,1 +1,5 @@
-simple-complete.rb is a simple word complementarity script for ruby.usage: ruby simple-complete.rb FILENAME LINE_NO:COLUMN_NOdistributed with MIT license.
+simple-complete.rb is a simple word complementarity script for ruby.
+
+usage: ruby simple-complete.rb FILENAME LINE_NO:COLUMN_NO
+
+distributed with MIT license.
