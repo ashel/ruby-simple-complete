@@ -157,7 +157,8 @@ end
 
 # hint_strがある場合は候補を絞り込む
 if hint_str.length > 0
-	cands.reject! {|item| item.index(hint_str) != 0}
+	# 1.9ではメソッドや定数を取得するメソッドがシンボルを返すため、互換のためにto_sを挟む必要がある
+	cands.reject! {|item| item.to_s.index(hint_str) != 0}
 end
 
 # 候補がなかったらエラーで終了
