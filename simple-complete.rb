@@ -57,12 +57,11 @@ File.readlines(filepath).each_with_index do |line, index|
 		elsif /([@$]?@?[a-zA-Z0-9_]*)$/ =~ target_str
 			hint_str = $1
 		end
-	else
-		if /require\s+["'](.+)["']/ =~ line
-			requires << $1
-		elsif /include\s+([a-zA-Z0-9_:]+)/ =~ line
-			includes << $1
-		end
+	end
+	if /require\s+["'](.+)["']/ =~ line
+		requires << $1
+	elsif /include\s+([a-zA-Z0-9_:]+)/ =~ line
+		includes << $1
 	end
 end
 
@@ -76,12 +75,18 @@ end
 
 # 補完対象のファイルでrequireされているライブラリをrequireする(例外が起きても無視)
 requires.each do |item|
-	require item rescue nil
+	begin
+		require item
+	rescue Exception
+	end
 end
 
 # 補完対象のファイルでincludeされているモジュールをincludeする(例外が起きても無視)
 includes.each do |item|
-	include item.split("::").inject(Object){|o,c| o.const_get(c)} rescue nil
+	begin
+		include item.split("::").inject(Object){|o,c| o.const_get(c)}
+	rescue Exception
+	end
 end
 
 # 補完候補を入れる配列
