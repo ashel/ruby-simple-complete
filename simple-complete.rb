@@ -120,6 +120,10 @@ if receiver
 				else
 					# クラスメソッドを取得
 					cands.concat(receiver_module.singleton_methods)
+					# newはsingleton_methodsでは出てこないので別途追加する。ただしclassの場合のみ
+					if receiver_module.kind_of?(Class)
+						cands << "new"
+					end
 				end
 			end
 		end
