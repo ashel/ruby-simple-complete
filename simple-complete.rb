@@ -78,6 +78,8 @@ end
 
 # 補完対象のファイルでrequireされているライブラリをrequireする(例外が起きても無視)
 requires.each do |item|
+	# 先頭にtestと付いていたら除外(test/unit及びそれをrequireしたファイルでうまくいかないため)
+	next if /^test/ =~ item
 	begin
 		require item
 	rescue Exception
