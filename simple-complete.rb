@@ -43,10 +43,13 @@ is_const_ref = false
 # nilの場合は行の指定が間違っていたことを示す。つまりエラー。
 hint_str = nil
 
+# 補完対象のファイルを読み込んで、補完文字、require、include等の情報を取得する
 File.readlines(filepath).each_with_index do |line, index|
 	if index == line_no
+		# 指定された行、補完文字の情報を取得
 		target_str = line.unpack('C*')[0...column_no].pack('C*')
 		if /(\.|::)([a-zA-Z0-9_]*)$/ =~ target_str
+			# 補完する文字にレシーバーがいる。ヒント文字列と定数の参照か否かを取得する
 			is_const_ref = ($1 == "::")
 			hint_str = $2
 			if /([A-Z][a-zA-Z0-9_:]*)(\.|::)([a-zA-Z0-9_]*)$/ =~ target_str
@@ -55,12 +58,15 @@ File.readlines(filepath).each_with_index do |line, index|
 				receiver = ""
 			end
 		elsif /([@$]?@?[a-zA-Z0-9_]*)$/ =~ target_str
+			# レシーバーがいない、ヒント文字列のみを取得
 			hint_str = $1
 		end
 	end
 	if /require\s+["'](.+)["']/ =~ line
+		# requireしているファイル名を取得
 		requires << $1
 	elsif /include\s+([a-zA-Z0-9_:]+)/ =~ line
+		# includeしているモジュール名を取得
 		includes << $1
 	end
 end
