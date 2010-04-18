@@ -11,14 +11,22 @@ if ARGV.length == 2
 	filepath = ARGV[0]
 	# 二つめは行数とカラム位置の指定
 	if /(\d+):(\d+)/ =~ ARGV[1]
-		line_no = $1.to_i
-		column_no = $2.to_i
+		line_no = $1.to_i - 1
+		column_no = $2.to_i - 1
 	end
 end
 
 unless filepath && line_no && column_no
 	puts "usage: ruby simple-complete.rb FILENAME LINE_NO:COLUMN_NO"
+	puts "  LINE_NO and COLUMN_NO is one origin."
 	exit
+end
+
+# 補完で使用する予約語のリスト
+reserved_words = %w|BEGIN class ensure nil self when END def false not super while alias defined? for or then yield and do if redo true begin else in rescue undef break elsif module retry unless case end next return until|
+# 1.9ではシンボルにする
+if RUBY_VERSION >= "1.9.0"
+	reserved_words = reserved_words.map {|item| item.intern}
 end
 
 # 補完対象のファイルでrequireされているライブラリ
@@ -152,6 +160,7 @@ else
 		# この何れでもない。グローバル関数、もしくは定数である。
 		Object.ancestors.each {|item| cands.concat(item.singleton_methods)}
 		cands.concat(Module.constants);
+		cands.concat(reserved_words);
 	end
 end
 
