@@ -70,9 +70,6 @@ unless hint_str
 	hint_str = ""
 end
 
-# 補完対象のファイルのあるフォルダに移動
-#Dir.chdir(File.dirname(filepath))
-
 # 補完対象のファイルでrequireされているライブラリをrequireする(例外が起きても無視)
 requires.each do |item|
 	begin
