@@ -175,9 +175,7 @@ else
 		end
 	elsif /^@/ =~ hint_str
 		# @から始まっている、何らかのクラスのインスタンス変数である
-		modules.each do |item|
-			cands.concat(item.instance_variables)
-		end
+		# インスタンス変数の補完は現状未対応
 	else
 		# この何れでもない。グローバル関数、もしくは定数である。
 		Object.ancestors.each {|item| cands.concat(item.singleton_methods)}
