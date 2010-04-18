@@ -43,8 +43,16 @@ is_const_ref = false
 # nilの場合は行の指定が間違っていたことを示す。つまりエラー。
 hint_str = nil
 
+# 補完対象のファイルを読み出す
+content = File.read(filepath)
+
+# このプログラムでは文字列はバイナリ列として扱う。1.9ではエンコーディングを指定する必要がある
+if RUBY_VERSION >= "1.9.0"
+	content.force_encoding(Encoding::ASCII_8BIT)
+end
+
 # 補完対象のファイルを読み込んで、補完文字、require、include等の情報を取得する
-File.readlines(filepath).each_with_index do |line, index|
+content.lines.each_with_index do |line, index|
 	if index == line_no
 		# 指定された行、補完文字の情報を取得
 		target_str = line.unpack('C*')[0...column_no].pack('C*')
