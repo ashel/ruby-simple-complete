@@ -74,4 +74,10 @@ class SimpleCompleteTest < Test::Unit::TestCase
 		# 現在入力している文字を補完しないか(後ろに文字がある場合)
 		assert(/(^|\n)aasda\n/ !~ `ruby ../../simple-complete.rb dabbrev.rb 11:3`)
 	end
+	
+	# test/unitをrequireしたファイルのテスト
+	def test_testunit
+		# アサート関数がレシーバなしの場合の候補に現れるか否か
+		assert_match(/(^|\n)assert_match\n/, `ruby ../../simple-complete.rb testunit.rb 7:3`)
+	end
 end

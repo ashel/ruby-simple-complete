@@ -31,6 +31,8 @@ end
 
 # 補完対象のファイルでrequireされているライブラリ
 requires = []
+# 補完対象のファイルで定義、もしくは継承されているクラス
+class_names = []
 # 補完対象のファイルでincludeされているモジュール
 includes = []
 # 補完対象がメソッドや定数だった場合のレシーバ。
@@ -82,6 +84,13 @@ content.lines.each_with_index do |line, index|
 	if /require\s+["'](.+)["']/ =~ line
 		# requireしているファイル名を取得
 		requires << $1
+	elsif /class\s+([a-zA-Z0-9_:]+)/ =~ line
+		# 定義されているクラスを取得
+		class_names << $1
+		# もし何らかのクラスを継承していたら取得
+		if /<\s+([a-zA-Z0-9_:]+)/ =~ line
+			class_names << $1
+		end
 	elsif /include\s+([a-zA-Z0-9_:]+)/ =~ line
 		# includeしているモジュール名を取得
 		includes << $1
@@ -108,6 +117,18 @@ requires.each do |item|
 	end
 end
 
+# class_namesでconst_getして、実際のクラスに変換する(例外が起きても無視)
+classes = []
+class_names.each do |item|
+	begin
+		classes.concat(item.split("::").inject(Object){|o,c| o.const_get(c)}.ancestors)
+	rescue Exception
+	end
+end
+# uniqし、Kernelを除く
+classes.uniq!
+classes.delete(Kernel)
+
 # 補完対象のファイルでincludeされているモジュールをincludeする(例外が起きても無視)
 includes.each do |item|
 	begin
@@ -124,8 +145,6 @@ cands = []
 # （Hoge::Piyo::Fugaは含まれるがHoge::Piyo::Fuga::Namuは含まれない）
 modules = []
 Module.constants.each do |item|
-	# Kernelは組み込み関数になるので除く
-	next if item == Kernel
 	c = Module.const_get(item)
 	if c.kind_of?(Module)
 		c.constants.each do |subitem|
@@ -141,7 +160,9 @@ Module.constants.each do |item|
 		modules << c
 	end
 end
+# uniqし、Kernelを除く
 modules.uniq!
+modules.delete(Kernel)
 
 # 状況に応じて候補を取得する
 if receiver
@@ -198,8 +219,12 @@ else
 		# @から始まっている、何らかのクラスのインスタンス変数である
 		# インスタンス変数の補完は現状未対応
 	elsif /[a-z_]/ =~ hint_str
-		# 小文字、もしくはアンダーバーから始まっている。グローバル関数、何らかのモジュールのメソッド、もしくは予約語である。
+		# 小文字、もしくはアンダーバーから始まっている。
+		# グローバル関数、補完対象のファイルで定義しているクラスのメソッド、もしくは予約語である。
 		Object.ancestors.each {|item| cands.concat(item.singleton_methods)}
+		classes.each do |item|
+			cands.concat(item.instance_methods(false))
+		end
 		cands.concat(reserved_words);
 	elsif hint_str.length == 0
 		# ヒント文字列が空文字。レシーバーがない場合のあらゆる可能性がある。
@@ -209,6 +234,9 @@ else
 			cands.concat(item.class_variables)
 		end
 		Object.ancestors.each {|item| cands.concat(item.singleton_methods)}
+		classes.each do |item|
+			cands.concat(item.instance_methods(false))
+		end
 		cands.concat(reserved_words);
 	end
 end
