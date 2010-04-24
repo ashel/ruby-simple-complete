@@ -41,7 +41,7 @@ class SimpleCompleteTest < Test::Unit::TestCase
 		# レシーバが何らかのオブジェクトであり、メソッドを呼び出している場合
 		assert_match(/(^|\n)hour\n/, `ruby ../../simple-complete.rb no_require.rb 12:6`)
 		# レシーバが何らかのオブジェクトであり、ヒント文字列がなく、かつメソッドを呼び出している場合に演算子が含まれないかどうか
-		assert(/(^|\n)<=>\n/ !~ `ruby ../../simple-complete.rb no_require.rb 12:5`)
+		assert_no_match(/(^|\n)<=>\n/, `ruby ../../simple-complete.rb no_require.rb 12:5`)
 	end
 	
 	# クラスを定義したファイルをrequireする場合のテスト
@@ -70,9 +70,9 @@ class SimpleCompleteTest < Test::Unit::TestCase
 		assert_match(/(^|\n)test!\n/, `ruby ../../simple-complete.rb dabbrev.rb 10:3`)
 		assert_match(/(^|\n)test?\n/, `ruby ../../simple-complete.rb dabbrev.rb 10:3`)
 		# 現在入力している文字を補完しないか
-		assert(/(^|\n)te\n/ !~ `ruby ../../simple-complete.rb dabbrev.rb 10:3`)
+		assert_no_match(/(^|\n)te\n/, `ruby ../../simple-complete.rb dabbrev.rb 10:3`)
 		# 現在入力している文字を補完しないか(後ろに文字がある場合)
-		assert(/(^|\n)aasda\n/ !~ `ruby ../../simple-complete.rb dabbrev.rb 11:3`)
+		assert_no_match(/(^|\n)aasda\n/, `ruby ../../simple-complete.rb dabbrev.rb 11:3`)
 	end
 	
 	# test/unitをrequireしたファイルのテスト
