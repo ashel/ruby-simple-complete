@@ -95,10 +95,15 @@ end
 
 # 補完対象のファイルでrequireされているライブラリをrequireする(例外が起きても無視)
 requires.each do |item|
-	# 先頭にtest[\/_]と付いていたら除外(test/unit及びそれをrequireしたファイルでうまくいかないため)
-	next if /^test[\/_]/ =~ item
 	begin
-		require item
+		if /^test[\/_]/ =~ item
+			# 先頭にtest[\/_]と付いていたら、代わりにtest/unit/assertionsとtest/unit/testcaseをrequireする
+			# test/unit及びそれをrequireしたファイルをrequireすると、テストの処理が始まってしまうため、特殊処理
+			require 'test/unit/assertions'
+			require 'test/unit/testcase'
+		else
+			require item
+		end
 	rescue Exception
 	end
 end
@@ -115,8 +120,8 @@ end
 cands = []
 
 # この時点で定義されているモジュールを全て取得する
-# 再帰して全部やりたいが、循環してしまうことがあって難しいので1階層だけにする
-# （Hoge::PiyoはいけるがHoge::Piyo::Fugaは含まれない）
+# 再帰して全部やりたいが、循環してしまうことがあって難しいので2階層だけにする
+# （Hoge::Piyo::Fugaは含まれるがHoge::Piyo::Fuga::Namuは含まれない）
 modules = []
 Module.constants.each do |item|
 	# Kernelは組み込み関数になるので除く
@@ -125,11 +130,18 @@ Module.constants.each do |item|
 	if c.kind_of?(Module)
 		c.constants.each do |subitem|
 			subc = c.const_get(subitem)
-			modules << subc if subc.kind_of?(Module)
+			if subc.kind_of?(Module)
+				subc.constants.each do |subsubitem|
+					subsubc = subc.const_get(subsubitem)
+					modules << subsubc if subsubc.kind_of?(Module)
+				end
+				modules << subc
+			end
 		end
 		modules << c
 	end
 end
+modules.uniq!
 
 # 状況に応じて候補を取得する
 if receiver
@@ -186,11 +198,11 @@ else
 		# @から始まっている、何らかのクラスのインスタンス変数である
 		# インスタンス変数の補完は現状未対応
 	elsif /[a-z_]/ =~ hint_str
-		# 小文字、もしくはアンダーバーから始まっている。グローバル関数、もしくは予約語である。
+		# 小文字、もしくはアンダーバーから始まっている。グローバル関数、何らかのモジュールのメソッド、もしくは予約語である。
 		Object.ancestors.each {|item| cands.concat(item.singleton_methods)}
 		cands.concat(reserved_words);
-	else
-		# この何れでもない(ヒント文字列が空文字の場合も含む)。レシーバーがない場合のあらゆる可能性がある。
+	elsif hint_str.length == 0
+		# ヒント文字列が空文字。レシーバーがない場合のあらゆる可能性がある。
 		cands.concat(Module.constants)
 		cands.concat(global_variables)
 		modules.each do |item|
