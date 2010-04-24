@@ -40,8 +40,10 @@ receiver = nil
 # receiverがnilの場合は常にfalseである。
 is_const_ref = false
 # ヒント文字列。空文字の場合はヒントが得られなかったことを示す。
-# nilの場合は行の指定が間違っていたことを示す。つまりエラー。
+# nilの場合は行の指定が間違っていたことを示す。
 hint_str = nil
+# ヒント文字列の後ろに続く文字。daddrevを行うために取得する。
+back_hint_str = ""
 
 # 補完対象のファイルを読み出す
 content = File.read(filepath)
@@ -68,6 +70,13 @@ content.lines.each_with_index do |line, index|
 		elsif /([@$]?@?[a-zA-Z0-9_]*)$/ =~ target_str
 			# レシーバーがいない、ヒント文字列のみを取得
 			hint_str = $1
+		end
+		# ヒント文字列の後ろに続く文字があれば取得
+		target_str = line[column_no..(-1)]
+		if target_str
+			if /[a-zA-Z0-9_]*[a-zA-Z0-9_!?]/ =~ target_str
+				back_hint_str = $&
+			end
 		end
 	end
 	if /require\s+["'](.+)["']/ =~ line
@@ -184,10 +193,20 @@ else
 	end
 end
 
-# hint_strがある場合は候補を絞り込む
+# hint_strがある場合は候補の絞り込みとdabbrevを行う
 if hint_str.length > 0
-	# 1.9ではメソッドや定数を取得するメソッドがシンボルを返すため、互換のためにto_sを挟む必要がある
+	# 候補の絞り込み。1.9ではメソッドや定数を取得するメソッドがシンボルを返すため、互換のためにto_sを挟む必要がある
 	cands.reject! {|item| item.to_s.index(hint_str) != 0}
+	### daddrevを行う
+	daddrev_cands = content.scan(/#{hint_str}@?[a-zA-Z0-9_]*[a-zA-Z0-9_!?]/)
+	# 自分がいま入力しているものは省く
+	daddrev_cands.delete(hint_str + back_hint_str)
+	# 全体の候補に加える(1.9ではシンボルにする)
+	if RUBY_VERSION >= "1.9.0"
+		cands.concat(daddrev_cands.map {|item| item.intern})
+	else
+		cands.concat(daddrev_cands)
+	end
 end
 
 # 候補がなかったらエラーで終了

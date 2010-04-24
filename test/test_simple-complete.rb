@@ -55,4 +55,19 @@ class SimpleCompleteTest < Test::Unit::TestCase
 		# インクルードの処理ができているか
 		assert_match(/(^|\n)cp_r\n/, `ruby ../../simple-complete.rb with_require.rb 12:4`)
 	end
+	
+	# daddrevのテスト
+	def test_daddrev
+		# daddrevのテスト(@が含まれる文字)
+		assert_match(/(^|\n)@teaaa\n/, `ruby ../../simple-complete.rb daddrev.rb 6:3`)
+		# daddrevのテスト(@@が含まれる文字で、@の位置で補完を行った場合)
+		assert_match(/(^|\n)@@teaaa\n/, `ruby ../../simple-complete.rb daddrev.rb 7:2`)
+		# daddrevのテスト(?や!が含まれている文字列を補完するか)
+		assert_match(/(^|\n)test!\n/, `ruby ../../simple-complete.rb daddrev.rb 10:3`)
+		assert_match(/(^|\n)test?\n/, `ruby ../../simple-complete.rb daddrev.rb 10:3`)
+		# 現在入力している文字を補完しないか
+		assert(/(^|\n)te\n/ !~ `ruby ../../simple-complete.rb daddrev.rb 10:3`)
+		# 現在入力している文字を補完しないか(後ろに文字がある場合)
+		assert(/(^|\n)aasda\n/ !~ `ruby ../../simple-complete.rb daddrev.rb 11:3`)
+	end
 end
