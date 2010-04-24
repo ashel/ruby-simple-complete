@@ -55,7 +55,7 @@ end
 content.lines.each_with_index do |line, index|
 	if index == line_no
 		# 指定された行、補完文字の情報を取得
-		target_str = line.unpack('C*')[0...column_no].pack('C*')
+		target_str = line[0...column_no]
 		if /(\.|::)([a-zA-Z0-9_]*)$/ =~ target_str
 			# 補完する文字にレシーバーがいる。ヒント文字列と定数の参照か否かを取得する
 			is_const_ref = ($1 == "::")
