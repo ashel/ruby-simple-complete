@@ -186,7 +186,7 @@ else
 		# @から始まっている、何らかのクラスのインスタンス変数である
 		# インスタンス変数の補完は現状未対応
 	else
-		# この何れでもない。グローバル関数、もしくは定数である。
+		# この何れでもない(ヒント文字列が空文字の場合も含む)。グローバル関数、定数、もしくは予約語である。
 		Object.ancestors.each {|item| cands.concat(item.singleton_methods)}
 		cands.concat(Module.constants);
 		cands.concat(reserved_words);
