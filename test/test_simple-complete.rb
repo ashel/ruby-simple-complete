@@ -61,7 +61,7 @@ class SimpleCompleteTest < Test::Unit::TestCase
 	end
 	
 	# dabbrevのテスト
-	def test_daddrev
+	def test_dabbrev
 		# dabbrevのテスト(@が含まれる文字)
 		assert_match(/(^|\n)@teaaa\n/, `ruby ../../simple-complete.rb dabbrev.rb 6:3`)
 		# dabbrevのテスト(@@が含まれる文字で、@の位置で補完を行った場合)

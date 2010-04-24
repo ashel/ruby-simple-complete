@@ -213,14 +213,14 @@ end
 # hint_strがある場合はdabbrevを行う
 if hint_str.length > 0
 	### dabbrevを行う
-	daddrev_cands = content.scan(/#{hint_str}@?[a-zA-Z0-9_]*[a-zA-Z0-9_!?]/)
+	dabbrev_cands = content.scan(/#{hint_str}@?[a-zA-Z0-9_]*[a-zA-Z0-9_!?]/)
 	# 自分がいま入力しているものは省く
-	daddrev_cands.delete(hint_str + back_hint_str)
+	dabbrev_cands.delete(hint_str + back_hint_str)
 	# 全体の候補に加える(1.9ではシンボルにする)
 	if RUBY_VERSION >= "1.9.0"
-		cands.concat(daddrev_cands.map {|item| item.intern})
+		cands.concat(dabbrev_cands.map {|item| item.intern})
 	else
-		cands.concat(daddrev_cands)
+		cands.concat(dabbrev_cands)
 	end
 end
 
