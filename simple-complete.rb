@@ -42,7 +42,7 @@ is_const_ref = false
 # ヒント文字列。空文字の場合はヒントが得られなかったことを示す。
 # nilの場合は行の指定が間違っていたことを示す。
 hint_str = nil
-# ヒント文字列の後ろに続く文字。daddrevを行うために取得する。
+# ヒント文字列の後ろに続く文字。dabbrevを行うために取得する。
 back_hint_str = ""
 
 # 補完対象のファイルを読み出す
@@ -212,7 +212,7 @@ end
 
 # hint_strがある場合はdabbrevを行う
 if hint_str.length > 0
-	### daddrevを行う
+	### dabbrevを行う
 	daddrev_cands = content.scan(/#{hint_str}@?[a-zA-Z0-9_]*[a-zA-Z0-9_!?]/)
 	# 自分がいま入力しているものは省く
 	daddrev_cands.delete(hint_str + back_hint_str)
