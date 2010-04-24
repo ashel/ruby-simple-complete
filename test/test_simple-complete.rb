@@ -30,6 +30,8 @@ class SimpleCompleteTest < Test::Unit::TestCase
 		assert_equal("while\n", `ruby ../../simple-complete.rb no_require.rb 5:6`)
 		# 組み込み関数が含まれているかのテスト(カラムはバイト位置で指定することに注意)
 		assert_match(/(^|\n)at_exit\n/, `ruby ../../simple-complete.rb no_require.rb 6:24`)
+		# ヒント文字列が何もない場合、組み込み関数、予約語、グローバル変数が含まれているかのテスト
+		assert_match(/(^|\n)$stderr\n|(^|\n)while\n|(^|\n)at_exit\n/, `ruby ../../simple-complete.rb no_require.rb 7:1`)
 		# レシーバが定数であり、定数を参照している場合
 		assert_match(/(^|\n)SEEK_END\n/, `ruby ../../simple-complete.rb no_require.rb 8:7`)
 		# レシーバが定数であり、メソッドを呼び出している場合
@@ -38,6 +40,8 @@ class SimpleCompleteTest < Test::Unit::TestCase
 		assert_match(/(^|\n)ArgumentError\n/, `ruby ../../simple-complete.rb no_require.rb 11:14`)
 		# レシーバが何らかのオブジェクトであり、メソッドを呼び出している場合
 		assert_match(/(^|\n)hour\n/, `ruby ../../simple-complete.rb no_require.rb 12:6`)
+		# レシーバが何らかのオブジェクトであり、ヒント文字列がなく、かつメソッドを呼び出している場合に演算子が含まれないかどうか
+		assert(/(^|\n)<=>\n/ !~ `ruby ../../simple-complete.rb no_require.rb 12:5`)
 	end
 	
 	# クラスを定義したファイルをrequireする場合のテスト

@@ -175,7 +175,7 @@ else
 		# 大文字から始まっている、定数である
 		cands.concat(Module.constants)
 	elsif /^\$/ =~ hint_str
-		# $から始まっている、グローバル定数である
+		# $から始まっている、グローバル変数である
 		cands.concat(global_variables)
 	elsif /^@@/ =~ hint_str
 		# @@から始まっている、何らかのクラスのクラス変数である
@@ -185,18 +185,33 @@ else
 	elsif /^@/ =~ hint_str
 		# @から始まっている、何らかのクラスのインスタンス変数である
 		# インスタンス変数の補完は現状未対応
-	else
-		# この何れでもない(ヒント文字列が空文字の場合も含む)。グローバル関数、定数、もしくは予約語である。
+	elsif /[a-z_]/ =~ hint_str
+		# 小文字、もしくはアンダーバーから始まっている。グローバル関数、もしくは予約語である。
 		Object.ancestors.each {|item| cands.concat(item.singleton_methods)}
-		cands.concat(Module.constants);
+		cands.concat(reserved_words);
+	else
+		# この何れでもない(ヒント文字列が空文字の場合も含む)。レシーバーがない場合のあらゆる可能性がある。
+		cands.concat(Module.constants)
+		cands.concat(global_variables)
+		modules.each do |item|
+			cands.concat(item.class_variables)
+		end
+		Object.ancestors.each {|item| cands.concat(item.singleton_methods)}
 		cands.concat(reserved_words);
 	end
 end
 
-# hint_strがある場合は候補の絞り込みとdabbrevを行う
+# 候補の絞り込みを行う
 if hint_str.length > 0
-	# 候補の絞り込み。1.9ではメソッドや定数を取得するメソッドがシンボルを返すため、互換のためにto_sを挟む必要がある
+	# 1.9ではメソッドや定数を取得するメソッドがシンボルを返すため、互換のためにto_sを挟む必要がある
 	cands.reject! {|item| item.to_s.index(hint_str) != 0}
+else
+	# ヒント文字列がない場合、演算子オーバーライドのメソッドが入ってくるため、それを除く
+	cands.reject! {|item| /^[$@a-zA-Z0-9_]/ !~ item.to_s}
+end
+
+# hint_strがある場合はdabbrevを行う
+if hint_str.length > 0
 	### daddrevを行う
 	daddrev_cands = content.scan(/#{hint_str}@?[a-zA-Z0-9_]*[a-zA-Z0-9_!?]/)
 	# 自分がいま入力しているものは省く
