@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 # 
-#   simple-complete.rb
+# usage:
+#   ruby simple-complete.rb FILENAME LINE_NO:COLUMN_NO
 # 
 # rubyのスクリプトファイル及びファイル内の位置を指定し、その箇所の単語を補完したときの
-# 候補を改行区切りで返します。候補がない場合は終了コードが1になります。
+# 候補を改行区切りで返します。候補がある場合は終了コードが0に、ない場合は1になります。
+# LINE_NOとCOLUMN_NOは1始まりです。また、COLUMN_NOは文字単位ではなくバイト単位で指定してください。
 
 # 引数をパースする。optparseを使いたいが、補完候補に影響を及ぼしてしまうので使えない。
 if ARGV.length == 2
