@@ -1,6 +1,6 @@
 simple-complete.rb is a simple word complementarity script for ruby.
 
 usage: ruby simple-complete.rb FILENAME LINE_NO:COLUMN_NO
-LINE_NO and COLUMN_NO is one origin.
+LINE_NO and COLUMN_NO is one origin, and COLUMN_NO is counted by bytes.
 
 distributed with MIT license.
