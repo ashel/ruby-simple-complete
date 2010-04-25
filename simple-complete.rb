@@ -106,9 +106,8 @@ end
 requires.each do |item|
 	begin
 		if /^test[\/_]/ =~ item
-			# 先頭にtest[\/_]と付いていたら、代わりにtest/unit/assertionsとtest/unit/testcaseをrequireする
-			# test/unit及びそれをrequireしたファイルをrequireすると、テストの処理が始まってしまうため、特殊処理
-			require 'test/unit/assertions'
+			# test/unit及びそれをrequireしたファイルをrequireするとテストの処理が始まってしまうため、特殊処理
+			# 代わりにtest/unit/testcaseをrequireする
 			require 'test/unit/testcase'
 		else
 			require item
