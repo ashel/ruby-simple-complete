@@ -20,7 +20,7 @@ end
 
 unless filepath && line_no && column_no
 	puts "usage: ruby simple-complete.rb FILENAME LINE_NO:COLUMN_NO"
-	puts "  LINE_NO and COLUMN_NO is one origin."
+	puts "  LINE_NO and COLUMN_NO is one origin, and COLUMN_NO is counted by bytes."
 	exit
 end
 
